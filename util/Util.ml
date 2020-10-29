@@ -2,22 +2,22 @@
  * Util: predefined Ostap utilities.
  * Copyright (C) 2006-2009
  * Dmitri Boulytchev, St.Petersburg State University
- * 
+ *
  * This software is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License version 2, as published by the Free Software Foundation.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * See the GNU Library General Public License version 2 for more details
  * (enclosed in the file COPYING).
  *)
 
 open Combinators
-open Matcher 
-open Printf 
+open Matcher
+open Printf
 
 module Ostap =
   struct
@@ -73,17 +73,17 @@ ostap (
 
 let expr f ops opnd =
   let ops =
-    Array.map 
+    Array.map
       (fun (assoc, list) ->
         let g = match assoc with `Lefta | `Nona -> left | `Righta -> right in
         assoc = `Nona, altl (List.map (fun (oper, sema) -> ostap (!(oper) {g sema})) list)
       )
-      ops 
+      ops
   in
   let n      = Array.length ops in
   let op   i = snd ops.(i)      in
   let nona i = fst ops.(i)      in
-  let id x   = x                in  
+  let id x   = x                in
   let ostap (
     inner[l][c]: f[ostap (
       {n = l                } => x:opnd {c x}
@@ -94,10 +94,10 @@ let expr f ops opnd =
         c (match b with None -> x | Some (o, y) -> o id x y)
       })]
   )
-  in 
+  in
   ostap (inner[0][id])
 
-let read name = 
+let read name =
   let inch = open_in_bin name in
   let len  = in_channel_length inch in
   let buf  = String.make len ' ' in
@@ -108,7 +108,7 @@ let read name =
 module Lexers =
   struct
 
-    let isKeyword keywords = 
+    let isKeyword keywords =
       let module S = Set.Make (String) in
       let s = List.fold_left (fun s k -> S.add k s) S.empty keywords in
       (fun i -> S.mem i s)
@@ -116,30 +116,30 @@ module Lexers =
     class checkKeywords keywords =
       let k = isKeyword keywords in
       object
-	method private keyword = k
+        method private keyword = k
       end
 
     class virtual genericIdent regexp name keywords s =
-      let regexp = Re_str.regexp regexp in 
+      let regexp = Re_str.regexp regexp in
       object(self : 'a)
-	inherit checkKeywords keywords
-	method virtual get      : string -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
-        method private getIdent : ('a, string, Reason.t) Types.result = 
-	  Types.bind 
-	    (self#get name regexp) 
-	    (fun t -> 
-	       let r = Token.repr t in
-	       if self#keyword r then `Fail (new Reason.t (Msg.make "%0 expected" [|name|] (Token.loc t)))
-	       else `Ok r
-	    )
+        inherit checkKeywords keywords
+        method virtual get      : string -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
+        method private getIdent : ('a, string, Reason.t) Types.result =
+          Types.bind
+            (self#get name regexp)
+            (fun t ->
+                let r = Token.repr t in
+                if self#keyword r then `Fail (new Reason.t (Msg.make "%0 expected" [|name|] (Token.loc t)))
+                else `Ok r
+            )
       end
-   
-    class virtual uident keywords s = 
+
+    class virtual uident keywords s =
       object inherit genericIdent "[A-Z]\([a-zA-Z_0-9]\)*\\b" "u-identifier" keywords s as ident
 	method getUIDENT = ident#getIdent
       end
 
-    class virtual lident keywords s = 
+    class virtual lident keywords s =
       object inherit genericIdent "[a-z]\([a-zA-Z_0-9]\)*\\b" "l-identifier" keywords s as ident
 	method getLIDENT = ident#getIdent
       end
@@ -153,33 +153,54 @@ module Lexers =
       let regexp = Re_str.regexp "-?[0-9]+" in
       object(self : 'a)
 	method virtual get : string -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
-	method getDECIMAL : ('a, int, Reason.t) Types.result = 
-	  Types.bind 
+	method getDECIMAL : ('a, int, Reason.t) Types.result =
+	  Types.bind
 	    (self#get "decimal constant" regexp)
 	    (fun t -> `Ok (int_of_string @@ Token.repr t))
       end
 
-    class virtual string s =
+    class virtual string (s: String.t) =
       let regexp = Re_str.regexp "" in
       object(self : 'a)
-	method virtual get : String.t -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
-	method getSTRING : ('a, String.t, Reason.t) Types.result =
-	  Types.bind
-	    (self#get "string constant" regexp)
-	    (fun t -> `Ok (Token.repr t))
+        method virtual get : String.t -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
+        method getSTRING : ('a, String.t, Reason.t) Types.result =
+          Types.bind
+            (self#get "string constant" regexp)
+            (fun t -> `Ok (Token.repr t))
+      end
+
+    class virtual char s =
+      let regexp = Re_str.regexp "'\\([^']\\|''\\|\\\\n\\|\\\\t\\)'" in
+      object(self : 'a)
+        method virtual get : String.t -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
+        method getCHAR     : 'a . ('a, char, Reason.t) Types.result =
+          ((Types.bind
+            (self#get "string constant" regexp)
+            (fun t -> `Ok (Token.repr t).[0])
+          ) : ('a, char, Reason.t) Types.result)
+          (* Types.bind
+            (self#get "character constant" regexp)
+            (fun t ->
+              let s = Token.repr t in
+              `Ok (match String.sub s 1 (String.length s - 2) with
+                  | "\\t" -> '\t'
+                  | "\\n" -> '\n'
+                  | "''"  -> '\''
+                  | s     -> s.[0])
+            ) *)
       end
 
     class skip skippers s =
       object inherit t s
-	val skipper = Skip.create skippers
-	method skip = skipper s
+        val skipper = Skip.create skippers
+        method skip = skipper s
       end
 
   end
 
 let parse l p =
-  Combinators.unwrap (p l) 
-    (fun x -> `Ok x) 
+  Combinators.unwrap (p l)
+    (fun x -> `Ok x)
     (fun (Some err) ->
        let [loc, m :: _] = err#retrieve (`First 1) (`Desc) in
        let m =  match m with `Msg m -> m | `Comment (s, _) -> Msg.make s [||] loc in

@@ -18,7 +18,7 @@ dispatch begin function
 
    flag ["compile"; "byte"; "ocaml"; "use_ostap_lib"]   (S[A"ostap.cmo"]);
    flag ["compile"; "native"; "ocaml"; "use_ostap_lib"] (S[A"ostap.cmx"]);
-
+   flag ["compile"] (S[A"-unsafe-string"]);
    ()
  | _ -> ()
  end

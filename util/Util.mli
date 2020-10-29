@@ -2,15 +2,15 @@
  * Util: predefined Ostap utilities.
  * Copyright (C) 2006-2009
  * Dmitri Boulytchev, St.Petersburg State University
- * 
+ *
  * This software is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License version 2, as published by the Free Software Foundation.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * See the GNU Library General Public License version 2 for more details
  * (enclosed in the file COPYING).
  *)
@@ -33,59 +33,59 @@ val ( ~$ ) : string -> < regexp : string -> string -> 'a; .. > -> 'a
 (** {2 List parsing} *)
 
 (** [listByWith s delim item f x] parses a non-empty list of [item]s delimited by [delim] from a stream [s]
-    and folds it with function [f] and initial value [x]. Note that inside Ostap syntax extension the notation 
+    and folds it with function [f] and initial value [x]. Note that inside Ostap syntax extension the notation
     [listByWith[delim][item][f][x]] should be used.
  *)
 val listByWith : ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.parse ->
                  ('a, 'd, 'c) Types.parse ->
-                 ('e -> 'd -> 'e) -> 
-                 'e -> 
+                 ('e -> 'd -> 'e) ->
+                 'e ->
                  'a ->
-                 ('a, 'e, 'c) Types.result 
+                 ('a, 'e, 'c) Types.result
 
 (** [listBy s delim item] parses a non-empty list of [item]s delimited by [delim] from a stream [s].
      Note that inside Ostap syntax extension the notation [listBy[delim][item]] should be used.
   *)
-val listBy : ('a, 'b, < add : 'c -> 'c; .. > as 'c) parse -> 
-             ('a, 'd, 'c) parse -> 
-             'a -> 
+val listBy : ('a, 'b, < add : 'c -> 'c; .. > as 'c) parse ->
+             ('a, 'd, 'c) parse ->
+             'a ->
              ('a, 'd list, 'c) Types.result
 
 (** [list s item] parses a non-empty list delimited by commas. Inside Ostap syntax extensions this should
      be used in the form [list[item]].
  *)
-val list : ('a, 'd, 'c) parse -> 
+val list : ('a, 'd, 'c) parse ->
            (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) result; .. > as 'a) ->
            ('a, 'd list, 'c) result
 
 (** [listWith s item f x] parses a non-empty list delimited by commas and folds it with the function [f] and initial
     value [x]. Inside Ostap syntax extensions this should be used in the form [listWith[item][f][x]].
  *)
-val listWith : ('a, 'd, 'c) Types.parse -> 
-               ('e -> 'd -> 'e) -> 'e -> 
-               (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.result; .. > as 'a) ->  
+val listWith : ('a, 'd, 'c) Types.parse ->
+               ('e -> 'd -> 'e) -> 'e ->
+               (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.result; .. > as 'a) ->
                ('a, 'e, 'c) Types.result
 
 (** [list0*] functions are that analoguous to [list*] but parse possibly empty lists. *)
 val list0ByWith : ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.parse ->
                   ('a, 'd, 'c) Types.parse ->
-                  ('e -> 'd -> 'e) -> 
-                  'e -> 
+                  ('e -> 'd -> 'e) ->
+                  'e ->
                   'a ->
-                  ('a, 'e, 'c) Types.result 
+                  ('a, 'e, 'c) Types.result
 
-val list0By : ('a, 'b, < add : 'c -> 'c; .. > as 'c) parse -> 
-              ('a, 'd, 'c) parse -> 
+val list0By : ('a, 'b, < add : 'c -> 'c; .. > as 'c) parse ->
+              ('a, 'd, 'c) parse ->
               'a ->
               ('a, 'd list, 'c) Types.result
 
-val list0With : ('a, 'd, 'c) Types.parse -> 
-                ('e -> 'd -> 'e) -> 
-                'e -> 
-                (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.result; .. > as 'a) ->  
+val list0With : ('a, 'd, 'c) Types.parse ->
+                ('e -> 'd -> 'e) ->
+                'e ->
+                (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.result; .. > as 'a) ->
                 ('a, 'e, 'c) Types.result
 
-val list0 : ('a, 'd, 'c) parse -> 
+val list0 : ('a, 'd, 'c) parse ->
             (< look : string -> ('a, 'b, < add : 'c -> 'c; .. > as 'c) Types.result; .. > as 'a) ->
             ('a, 'd list, 'c) result
 
@@ -103,21 +103,21 @@ val id : ('a, 'b, 'c) parse -> ('a, 'b, 'c) parse
     lowest priority). Each elements of the array contains pair [(assoc, oplist)] where [assoc] is
     associativity value ([`Righta], [`Lefta] or [`Nona]) and [oplist] is a list of pairs [(opparse, opsema)], where
     [opparse] is parser of operator symbol and [opsema] is semantic function of type ['a -> 'a -> 'a]. Additional
-    higher-order parser [f] is used to allow some post-processing of every subexpression being parsed. In most 
+    higher-order parser [f] is used to allow some post-processing of every subexpression being parsed. In most
     cases identity parser [id] is sufficient.
 
     Example:
-    
+
     {[
-      let rec parse s =                                                                                    
+      let rec parse s =
         expr id
-          [|                                                                                            
-            left , [ostap ("+"), (fun x y -> `Add (x, y)); ostap ("-"), (fun x y -> `Sub (x, y))]; 
-            left , [ostap ("*"), (fun x y -> `Mul (x, y)); ostap ("/"), (fun x y -> `Div (x, y))]  
-          |]                                                                                            
-          primary                                                                                       
-          s                                                                                             
-      and ostap (primary:  n:ident \{`Ident n} | -"(" parse -")")                                        
+          [|
+            left , [ostap ("+"), (fun x y -> `Add (x, y)); ostap ("-"), (fun x y -> `Sub (x, y))];
+            left , [ostap ("*"), (fun x y -> `Mul (x, y)); ostap ("/"), (fun x y -> `Div (x, y))]
+          |]
+          primary
+          s
+      and ostap (primary:  n:ident \{`Ident n} | -"(" parse -")")
     ]}
 
     The example above defines parser of expressions with left-associative operators ["+"],  ["-"], ["*"], and ["/"].
@@ -162,26 +162,32 @@ module Lexers :
         method getIDENT : ('a, string, Reason.t) Types.result
       end
 
-    (** A lexer component for parsing signed decimal constants; the first argument is 
+    (** A lexer component for parsing signed decimal constants; the first argument is
         a string to parse
      *)
     class virtual decimal : string ->
       object('a)
-	method virtual get : string -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result	
+        method virtual get : string -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result
         method getDECIMAL : ('a, int, Reason.t) Types.result
       end
 
-    (** A lexer component for parsing quoted strings; the first argument is 
+    (** A lexer component for parsing quoted strings; the first argument is
         a string to parse
      *)
     class virtual string : String.t ->
       object('a)
-	method virtual get : String.t -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result	
+        method virtual get : String.t -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result
         method getSTRING : ('a, String.t, Reason.t) Types.result
       end
 
+    class virtual char : String.t ->
+      object('a)
+        method virtual get : String.t -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result
+        method getCHAR : ('a, char, Reason.t) Types.result
+      end
+
     (** A lexer component for skipping whitespaces and comments; the first argument is
-        a list of skipped items specifiers (see Matcher.mli), the second --- a string 
+        a list of skipped items specifiers (see Matcher.mli), the second --- a string
         to parse
      *)
     class skip : Matcher.Skip.t list -> String.t ->
@@ -194,7 +200,7 @@ module Lexers :
 (** [read fname] returns the content of the file [fname]. *)
 val read : string -> string
 
-(** [parse l p] parses a stream, represented by [l], by a parser [p]; this is a 
-    simplified entry point 
+(** [parse l p] parses a stream, represented by [l], by a parser [p]; this is a
+    simplified entry point
 *)
 val parse : (#Matcher.t as 'a) -> ('a, 'c, Reason.t) parse -> [`Fail of String.t | `Ok of 'c]
