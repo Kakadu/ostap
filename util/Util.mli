@@ -183,7 +183,7 @@ module Lexers :
     class virtual char : String.t ->
       object('a)
         method virtual get : String.t -> Re_str.regexp -> ('a, Matcher.Token.t, Reason.t) Types.result
-        method getCHAR : ('a, char, Reason.t) Types.result
+        method getCHAR : ('a, Stdlib.Char.t, Reason.t) Types.result
       end
 
     (** A lexer component for skipping whitespaces and comments; the first argument is

@@ -1,4 +1,4 @@
-1(*
+(*
  * Util: predefined Ostap utilities.
  * Copyright (C) 2006-2009
  * Dmitri Boulytchev, St.Petersburg State University
@@ -173,12 +173,8 @@ module Lexers =
       let regexp = Re_str.regexp "'\\([^']\\|''\\|\\\\n\\|\\\\t\\)'" in
       object(self : 'a)
         method virtual get : String.t -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
-        method getCHAR     : 'a . ('a, char, Reason.t) Types.result =
-          ((Types.bind
-            (self#get "string constant" regexp)
-            (fun t -> `Ok (Token.repr t).[0])
-          ) : ('a, char, Reason.t) Types.result)
-          (* Types.bind
+        method getCHAR     : ('a, Stdlib.Char.t, Reason.t) Types.result =
+          Types.bind
             (self#get "character constant" regexp)
             (fun t ->
               let s = Token.repr t in
@@ -187,7 +183,7 @@ module Lexers =
                   | "\\n" -> '\n'
                   | "''"  -> '\''
                   | s     -> s.[0])
-            ) *)
+            )
       end
 
     class skip skippers s =

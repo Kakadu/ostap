@@ -1,1 +1,7 @@
-REC
+SRC .
+SRC ../src
+B ../_build/src
+B ../_build/util
+FLG -rectypes -unsafe-string
+PKG re
+PKG re.str
