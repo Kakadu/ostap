@@ -21,9 +21,7 @@ open Printf
 
 module Ostap =
   struct
-
     module Combinators = Combinators
-
   end
 
 ostap (
@@ -136,17 +134,17 @@ module Lexers =
 
     class virtual uident keywords s =
       object inherit genericIdent "[A-Z]\([a-zA-Z_0-9]\)*\\b" "u-identifier" keywords s as ident
-	method getUIDENT = ident#getIdent
+        method getUIDENT = ident#getIdent
       end
 
     class virtual lident keywords s =
       object inherit genericIdent "[a-z]\([a-zA-Z_0-9]\)*\\b" "l-identifier" keywords s as ident
-	method getLIDENT = ident#getIdent
+        method getLIDENT = ident#getIdent
       end
 
     class virtual ident keywords s =
       object inherit genericIdent "[a-zA-Z]\([a-zA-Z_0-9]\)*\\b" "identifier" keywords s as ident
-	method getIDENT = ident#getIdent
+        method getIDENT = ident#getIdent
       end
 
     class virtual decimal s =
@@ -160,7 +158,7 @@ module Lexers =
       end
 
     class virtual string (s: String.t) =
-      let regexp = Re_str.regexp "" in
+      let regexp = Re_str.regexp "\"\\([^\"]\\|\"\"\\)*\"" in
       object(self : 'a)
         method virtual get : String.t -> Re_str.regexp -> ('a, Token.t, Reason.t) Types.result
         method getSTRING : ('a, String.t, Reason.t) Types.result =
