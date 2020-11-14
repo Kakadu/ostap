@@ -1,4 +1,4 @@
-PKGNAME=ostap
+PKGNAME=ostapNoError
 MKDIR ?= mkdir -vp
 CP    ?= cp
 
@@ -14,6 +14,7 @@ endif
 TESTS_ENVIRONMENT=./test.sh
 
 .DEFAULT_GOAL :=  all
+OSTAP=$(PKGNAME)
 
 .PHONY: all bundle sample
 .PHONY: celan clean clean_tests install uninstall
@@ -22,10 +23,10 @@ TESTS_ENVIRONMENT=./test.sh
 .DEFAULT_GOAL: all
 
 all:
-	$(OB) src/ostap.cmo src/ostap.cmx
+	$(OB) src/$(OSTAP).cmo src/$(OSTAP).cmx
 	$(OB) pa_ostap.cmo -I src
 	$(OB) -Is src util/Util.cmo util/Util.cmx
-	$(OB) -Is src ostap.cmo ostap.cmx
+	$(OB) -Is src $(OSTAP).cmo $(OSTAP).cmx
 
 celan: clean
 
@@ -83,10 +84,10 @@ test: tests
 ######################## Installation related stuff ##########################
 INSTALL_TARGETS=META \
 	_build/pa_ostap.cmo \
-	_build/ostap.cmo \
-	_build/ostap.cmx \
-	_build/ostap.cmi \
-	_build/ostap.o \
+	_build/$(OSTAP).cmo \
+	_build/$(OSTAP).cmx \
+	_build/$(OSTAP).cmi \
+	_build/$(OSTAP).o \
 
 
 BUNDLEDIR=_build/bundle/$(PKGNAME)

@@ -3,11 +3,11 @@ true: rectypes, package(re.str), warn(-3)
 
 # GT for View module
 <src/*>: package(GT)
-<src/*.ml>: for-pack(Ostap)
+<src/*.ml>: for-pack(OstapNoError)
 <src/regexp.ml>: use_pa_log, package(logger.syntax)
 
-<util/Util.ml>:  use_pa_ostap, package(camlp5), for-pack(Ostap)
-<util/Util.mli>: for-pack(Ostap)
+<util/Util.ml>:  use_pa_ostap, package(camlp5), for-pack(OstapNoError)
+<util/Util.mli>: for-pack(OstapNoError)
 
 #<util/*>: syntax(camlp5o), package(camlp5)
 

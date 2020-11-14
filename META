@@ -1,10 +1,10 @@
 version = "0.3"
 description = "Parser-combinator library"
 requires = "re.str GT"
-archive(byte) = "ostap.cmo"
-archive(byte, plugin) = "ostap.cmo"
-archive(native) = "ostap.cmx"
-exists_if = "ostap.cmo"
+archive(byte) = "ostapNoError.cmo"
+archive(byte, plugin) = "ostapNoError.cmo"
+archive(native) = "ostapNoError.cmx"
+exists_if = "ostapNoError.cmo"
 
 package "syntax" (
  version = "0.3"
@@ -13,4 +13,3 @@ package "syntax" (
  archive(syntax, preprocessor) = "pa_ostap.cmo"
  archive(syntax, toploop) = "pa_ostap.cmo"
 )
-
