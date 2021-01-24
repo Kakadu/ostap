@@ -8,8 +8,8 @@ bug-reports: "https://github.com/Ostapers/ostap/issues"
 dev-repo:    "git+https://github.com/kverty/ostap.git"
 
 build: [
-  [make "-f" "Makefile.ob" ]
-  [make "-f" "Makefile.ob" "test"] { with-test }
+  [make]
+  [make "test"] {with-test}
 ]
 
 install: [make "PREFIX=%{prefix}%" "install"]
